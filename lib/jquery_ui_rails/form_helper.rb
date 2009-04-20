@@ -23,7 +23,23 @@ module JQueryFormHelper
     # render object error messages, jquery style
     def error_messages(options={})
       if @object.errors.length > 0
-        @template.render(:layout => "theme/error_messages", :locals => {:object => @object})
+        errors = %Q{
+          <div id='errorExplanation' class='errorExplanation'>
+            <div class='ui-state-error ui-corner-all' style='padding: 8px;'>
+              <p>
+                <span class='ui-icon ui-icon-alert' style='float: left; margin-right: 0.3em;'></span>
+                #{@object.errors.length} errors prevented this user from being created
+              </p>
+              <ul>
+        }
+        @object.errors.each do |error, message|
+          errors << "<li>#{error.humanize.titleize} #{message}</li>\n"
+        end
+        errors << %Q{
+              </ul>
+            </div>
+          </div>
+        }
       end
     end
 
