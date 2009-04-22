@@ -19,7 +19,7 @@ module JQueryFormHelper
         </div>
       }
     end
-
+    
     # render object error messages, jquery style
     def error_messages(options={})
       if @object.errors.length > 0
@@ -56,8 +56,10 @@ module JQueryFormHelper
     options = args
     options = options.extract_options!
     object = record_or_name_or_array
-    if object.errors.length > 0
+    if object.errors.length > 0 && !flash[:error] # assumes if flash error exists, you will not be displaying object errors
       options[:height] += (22 * object.errors.length) + 90
+    elsif(flash[:error])
+      options[:height] += 55
     end
     args << args.extract_options!.merge(:height => options[:height])
     concat "<div class='vcentered_content'>\n"
@@ -70,7 +72,8 @@ module JQueryFormHelper
 
   # jquery themed form tag
   def jquery_form_tag(url_for_options = {}, options = {}, *parameters_for_url, &block)
-    @shadow_boxed_form_size = [options[:width], options[:height]]
+    options[:height] += 55 if flash[:error] || flash[:notice]
+    @jquery_form_size = [options[:width], options[:height]]
     concat "<div class='vcentered_content'>\n"
     concat "<div class='ui-widget-shadow ui-corner-all' style='position: absolute; height: #{options[:height]}px; width: #{options[:width]}px;'></div>\n"
     concat "<div class='ui-dialog ui-widget ui-widget-content ui-corner-all' style='height: #{options[:height]-5}px; width: #{options[:width]-2}px; padding: 0px;'>\n"
@@ -90,7 +93,7 @@ module JQueryFormHelper
       });
       $('#user_submit').remove();
     }
-    options.merge!(:width => @shadow_boxed_form_size[0], :height => @shadow_boxed_form_size[1])
+    options.merge!(:width => @jquery_form_size[0], :height => @jquery_form_size[1])
     %Q{<div class='ui-dialog-buttonpane ui-widget-content ui-helper-clearfix ui-corner-bottom' style='left: 0; top: #{options[:height]-70}px; position: absolute; width: #{options[:width]-22}px; height: 50px;'>
       <button class='ui-state-default ui-corner-all'>#{value}</button>
     </div>}
